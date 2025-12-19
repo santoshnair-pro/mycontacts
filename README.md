@@ -157,5 +157,5 @@ Please read CONTRIBUTING.md for details on our code of conduct, and the process 
 Santosh Nair  – pro.santoshnair@gmail.com
  
  You can find me here at:
-[Github](https://github.com/SagarGaniga)
+[Github](https://github.com/santoshnair-pro)
 [LinkedIn](https://www.linkedin.com/in/santosh-nair-923b93a/)
