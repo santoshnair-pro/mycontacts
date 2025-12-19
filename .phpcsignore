@@ -1,0 +1,6 @@
+*/vendor/*
+*/cache/*
+.vscode
+*/logs/*
+*/public/*
+*/views/*

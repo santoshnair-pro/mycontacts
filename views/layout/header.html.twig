@@ -1,0 +1,65 @@
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+	<div class="container-fluid">
+		<a class="navbar-brand fw-bold" href="./"><img src="public/img/applogo.svg" height="56" width="56"/>
+			My Contacts</a>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarScroll">
+			{% if user %}
+				<div class="d-flex ms-auto collapse navbar-collapse">
+					<ul class="navbar-nav ms-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
+						<li class="nav-item dropdown no-arrow">
+							<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+								<a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+									<span class="mr-2 d-none d-lg-inline text-gray-600 fw-medium">{{ user.fname }}
+										{{ user.lname }}</span>
+									<img class="img-profile rounded-circle" src="public/img/user_avatar.jpeg" height="40" width="40">
+								</a>
+							</a>
+							<ul class="dropdown-menu">
+								<li>
+									<a class="dropdown-item" href="./myaccount">
+										<i class="bi bi-person-circle fa-fw mr-2 text-gray-400"></i>
+										My Account</a>
+								</li>
+								<li>
+									<a class="dropdown-item" href="./changepassword">
+										<i class="bi bi-list-ul mr-2 text-gray-400"></i>
+										Change Password</a>
+								</li>
+								<li><hr class="dropdown-divider"></li>
+								<li>
+									<a class="dropdown-item" id="appLogout" href="#">
+										<i class="bi bi-box-arrow-right mr-2 text-gray-400"></i>
+										Logout</a>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</div>
+		{% endif %}
+	</div>
+</nav>
+ <script type="text/javascript" language="javascript">
+		$("#appLogout").on("click", function(event){
+		   // Prevent the default form submission (page refresh)
+		   event.preventDefault();
+			$.ajax({
+		        type: 'POST',
+		        url: './logout', 
+		        data: [],
+		        dataType: 'json', 
+		        success: function(response) {
+					if(response.code && response.code == 200){
+						// Redirect to login page
+						window.location.href = './login';
+					}
+				},
+				error: function(xhr, status, error) {
+					// Handle any errors that occur during the AJAX request
+				}
+			});
+		});
+		</script>

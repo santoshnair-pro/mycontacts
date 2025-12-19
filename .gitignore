@@ -1,0 +1,8 @@
+/.vscode/
+/vendor/
+/cache/
+/logs/
+/cache/
+uploads/*
+.env
+.env.test

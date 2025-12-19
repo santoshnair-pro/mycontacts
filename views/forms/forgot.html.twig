@@ -1,0 +1,77 @@
+<div class="row justify-content-center align-items-center page-content">
+	<div class="col-md-6 page-left">
+		
+	</div>
+	<div class="col-md-6 d-flex align-items-center form-container">
+		<div class="card p-4 shadow-2-strong form-card">
+			<div class="card-body">
+				<form id="frmForgot" name="frmForgot" method="post" action="/forgot">
+					<div class="divider d-flex align-items-center my-4">
+						<h3>Forgot Password</h3>
+						<div>
+							<input type="hidden" name="inputform" id="inputform" value="login"/>
+							<div id="frmForgotFeedback" class=""></div>	
+						</div>	
+					</div>
+					<!-- Email input -->
+					<div class="form-outline mb-4">
+						<label class="form-label" for="inputuser">Enter your registered email address</label>
+						<input type="email" id="inputuser" class="form-control form-control-lg" placeholder="email address" maxlength="100" value="" required/>
+						<div id="inputuserFeedback" class=""></div>
+					</div>
+					<div class="text-center text-lg-start mt-4 pt-2">
+						<button type="submit" class="btn btn-primary">Submit</button>
+						<button type="reset" class="btn btn-secondary">Reset</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript" language="javascript">
+$("#frmForgot").on("submit", function(event){
+   // Prevent the default form submission (page refresh)
+   event.preventDefault();
+   $('#inputuser').removeClass('is-invalid');
+   $('#inputuserFeedback').removeClass('invalid-feedback').text("");
+
+   const username  = $('#inputuser').val();
+   if(!validator.isEmail(username)){
+		$('#inputuser').addClass('is-invalid');
+		$('#inputuserFeedback').addClass('invalid-feedback').text('Please provide a valid email');
+		return false;
+   }
+    const formData = {
+	username: username,
+   }
+   $.ajax({
+        type: 'POST',
+        url: './forgot', // Replace with your server-side script
+        data: formData,
+        dataType: 'json', // Expect JSON response from the server
+        success: function(response) {
+            // Handle successful response from the server
+			if(response.code && response.code == 200){
+				$("#frmForgot").trigger("reset");
+				if(response.data && response.data.message){
+					$.alert(response.data.message);
+				}
+			}else{
+				if(response.data && response.data.email &&  response.data.email != null){
+					$('#inputuser').addClass('is-invalid');
+					$('#inputuserFeedback').addClass('invalid-feedback').text(response.data.email);
+				}
+				if(response.data && response.data.form &&  response.data.form != null){
+					$('#inputform').addClass('is-invalid'); 
+					$('#frmForgotFeedback').addClass('invalid-feedback').text(response.data.form);	
+				}
+			}
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            // Handle errors
+            $('#inputform').addClass('is-invalid'); 
+			$('#frmLoginFeedback').addClass('invalid-feedback').text('unexpected error has occured');
+        }
+     });
+p});
+</script>

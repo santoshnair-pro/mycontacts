@@ -1,0 +1,107 @@
+<div class="row justify-content-center align-items-center page-content">
+	<div class="col-md-6 page-left">
+		
+	</div>
+	<div class="col-md-6 d-flex align-items-center form-container">
+	<div class="card p-4 shadow-2-strong form-card">
+			<div class="card-body">
+		<form id="frmLogin" name="frmLogin" method="post" action="./login">
+			<div class="divider d-flex align-items-center my-4">
+				<h3>Member Login</h3>
+				<div>
+					<input type="hidden" name="inputform" id="inputform" value="login"/>
+					<div id="frmLoginFeedback" class=""></div>	
+				</div>	
+			</div>
+
+			<!-- Email input -->
+			<div class="form-outline mb-4">
+				<label class="form-label" for="inputuser">Email address</label>
+				<input type="email" id="inputuser" name="username" class="form-control form-control-lg" placeholder="your email address" maxlength="100" value="" required/>
+				<div id="inputuserFeedback" class=""></div>
+			</div>
+
+			<!-- Password input -->
+			<div class="form-outline mb-3">
+				<label class="form-label" for="inputpassword">Password</label>
+				<input type="password" id="inputpassword" name="password" class="form-control form-control-lg" placeholder="your password" maxlength="20" value="" required/>
+				<div id="inputpasswordFeedback" class=""></div>
+			</div>
+
+			<div class="m-4">
+				<a href="./forgot" class="text-body float-end">Forgot password?</a>
+			</div>
+
+			<div class="text-center text-lg-start mt-4 pt-2">
+				<button type="submit" id="btnLogin" name="login" class="btn btn-primary btn-lg" style="padding-left: 2.5rem; padding-right: 2.5rem;">Login</button>
+				<p class="small fw-bold mt-2 pt-1 mb-0">Don't have an account?
+					<a href="./signup" class="link-danger">Register</a>
+				</p>
+			</div>
+		</form>
+		</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript" language="javascript">
+$("#frmLogin").on("submit", function(event){
+   // Prevent the default form submission (page refresh)
+   event.preventDefault();
+   $('#inputuser').removeClass('is-invalid');
+   $('#inputuserFeedback').removeClass('invalid-feedback').text("");
+   $('#inputpassword').removeClass('is-invalid');
+   $('#inputpasswordFeedback').removeClass('invalid-feedback').text("");
+   $('#inputform').removeClass('is-invalid'); 
+   $('#frmLoginFeedback').removeClass('invalid-feedback').text("");
+
+   const username  = $('#inputuser').val();
+   const password = $('#inputpassword').val();
+    // validate form data
+
+   if(!validator.isEmail(username)){
+		$('#inputuser').addClass('is-invalid');
+		$('#inputuserFeedback').addClass('invalid-feedback').text('Please provide a valid email');
+		return false;
+   }
+   const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*_-])[A-Za-z\d!@#$%^&*_-]{8,20}$/;
+   if(!passwordRegex.test(password)){
+		$('#inputpassword').addClass('is-invalid');
+		$('#inputpasswordFeedback').addClass('invalid-feedback').text('Password must be 8 to 20 characters long and must consist of capital and small letters, number and special characters');
+		return false;
+   }
+   const formData = {
+	username: username,
+	password: password
+   }
+   $.ajax({
+        type: 'POST',
+        url: './login', // Replace with your server-side script
+        data: formData,
+        dataType: 'json', // Expect JSON response from the server
+        success: function(response) {
+            // Handle successful response from the server
+			if(response.code && response.code == 200){
+				window.location.href = "./home";
+			}else{
+				if(response.data && response.data.email &&  response.data.email != null){
+					$('#inputuser').addClass('is-invalid');
+					$('#inputuserFeedback').addClass('invalid-feedback').text(response.data.email);
+				}
+				if(response.data && response.data.password &&  response.data.password != null){
+					$('#inputpassword').addClass('is-invalid');
+					$('#inputpasswordFeedback').addClass('invalid-feedback').text(response.data.password);
+				}
+				if(response.data && response.data.form &&  response.data.form != null){
+					$('#inputform').addClass('is-invalid'); 
+					$('#frmLoginFeedback').addClass('invalid-feedback').text(response.data.form);	
+				}
+			}
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            // Handle errors
+            $('#inputform').addClass('is-invalid'); 
+			$('#frmLoginFeedback').addClass('invalid-feedback').text('unexpected error has occured');
+        }
+     });
+ });
+</script>

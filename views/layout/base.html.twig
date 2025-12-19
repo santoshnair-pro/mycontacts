@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html class="h-100" lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="description" content="A simple web application written in PHP using the Twig templating engine.">
+    	<meta name="author" content="Santosh Nair">
+		<title>
+			{% block title %}
+				{{ title }}
+			{% endblock %}
+		</title>
+		{% block head %}
+			{{ include('layout/header-imports.html.twig') }}
+		{% endblock %}
+	</head>
+	<body class="d-flex flex-column h-100">
+		{% block pagecontent %}
+		{{ pagecontent }}
+		{% endblock %}
+	</body>
+	{{ include("layout/footer-imports.html.twig") }}
+</html>

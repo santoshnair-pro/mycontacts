@@ -1,0 +1,157 @@
+<div class="row justify-content-center align-items-center page-content">
+	<div class="col-md-6 page-left">
+		
+	</div>
+	<div class="col-md-6 d-flex align-items-center form-container">
+		<div class="card p-4 shadow-2-strong form-card">
+			<div class="card-body">
+				<form id="frmSignup" name="frmSignup" method="post" action="/register">
+					<div class="divider d-flex align-items-center my-4">
+						<h3>SignUp</h3>
+						<div>
+							<input type="hidden" name="inputform" id="inputform" value=""/>
+							<div id="frmSignupFeedback" class=""></div>
+						</div>	
+					</div>
+					<div class="form-outline mb-4">
+						<label class="form-label" for="inputfname">First Name</label>
+						<input type="text" name="fname" id="inputfname" class="form-control form-control-lg" placeholder="first name" maxlength="20"/>
+						<div id="inputfnameFeedback" class=""></div>
+					</div>
+					<div class="form-outline mb-4">
+						<label class="form-label" for="inputlname">Last Name</label>
+						<input type="text" name="lname" id="inputlname" class="form-control form-control-lg" placeholder="last name" maxlength="25"/>
+						<div id="inputlnameFeedback" class=""></div>
+					</div>
+					<div class="form-outline mb-4">
+						<label class="form-label" for="inputemail">Email</label>
+						<input type="email" name="email" id="inputemail" class="form-control form-control-lg" placeholder="email" maxlength="100"/>
+						<div id="inputemailFeedback" class=""></div>
+					</div>
+					<div class="form-outline mb-4">
+						<label class="form-label" for="inputpass">Password</label>
+						<input type="password" name="pass" id="inputpass" class="form-control form-control-lg" placeholder="password" maxlength="20"/>
+						<div id="inputpassFeedback" class=""></div>
+					</div>
+					<div class="form-outline mb-4">
+						<label class="form-label" for="inputcpass">Confirm Password</label>
+						<input type="password" name="cpass" id="inputcpass" class="form-control form-control-lg" placeholder="confirm password" maxlength="20"/>
+						<div id="inputcpassFeedback" class=""></div>
+					</div>
+					<div class="text-center text-lg-start mt-4 pt-2">
+						<button type="submit" class="btn btn-primary">Submit</button>
+						<button type="reset" class="btn btn-secondary">Reset</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+ <script type="text/javascript" language="javascript">
+$("#frmSignup").on("submit", function(event){
+   // Prevent the default form submission (page refresh)
+   event.preventDefault();
+   $('#inputfname').removeClass('is-invalid');
+   $('#inputfnameFeedback').removeClass('invalid-feedback').text("");
+   $('#inputlname').removeClass('is-invalid');
+   $('#inputlnameFeedback').removeClass('invalid-feedback').text("");
+   $('#inputemail').removeClass('is-invalid');
+   $('#inputemailFeedback').removeClass('invalid-feedback').text("");
+   $('#inputpass').removeClass('is-invalid');
+   $('#inputpassFeedback').removeClass('invalid-feedback').text("");
+   $('#inputcpass').removeClass('is-invalid');
+   $('#inputcpassFeedback').removeClass('invalid-feedback').text("");
+   $('#inputform').removeClass('is-invalid'); 
+   $('#frmSignupFeedback').removeClass('invalid-feedback').text("");
+
+   const fname  = $('#inputfname').val().trim();
+   const lname  = $('#inputlname').val().trim();
+   const email  = $('#inputemail').val().trim();
+   const password = $('#inputpass').val().trim();
+   const cpassword = $('#inputcpass').val().trim();
+	// validate form data
+   if(fname.length < 2 || fname.length > 20){
+		$('#inputfname').addClass('is-invalid');
+		$('#inputfnameFeedback').addClass('invalid-feedback').text('First name must be at least 2 characters long and maximum 20 characters long');
+		return false;
+   }
+   if(lname.length < 2 || lname.length > 25){
+		$('#inputlname').addClass('is-invalid');
+		$('#inputlnameFeedback').addClass('invalid-feedback').text('Last name must be at least 2 characters long and maximum 25 characters long');
+		return false;
+   }
+   if(!validator.isEmail(email)){
+		$('#inputemail').addClass('is-invalid');
+		$('#inputemailFeedback').addClass('invalid-feedback').text('Please provide a valid email');
+		return false;
+   }
+   const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*_-])[A-Za-z\d!@#$%^&*_-]{8,20}$/;
+   if(!passwordRegex.test(password)){
+		$('#inputpass').addClass('is-invalid');
+		$('#inputpassFeedback').addClass('invalid-feedback').text('Password must be 8 to 20 characters long and must consist of capital and small letters, number and special characters');
+		return false;
+   }
+   if(password !== cpassword){
+		$('#inputcpass').addClass('is-invalid');
+		$('#inputcpassFeedback').addClass('invalid-feedback').text('Password and Confirm Password must match');
+		return false;
+   }
+   const formData = {
+	fname: fname,
+	lname: lname,		
+	email: email,
+	pass: password,
+	cpass: cpassword
+   }
+   $.ajax({
+		type: 'POST',
+		url: './register', // Replace with your server-side script
+		data: formData,
+		dataType: 'json', // Expect JSON response from the server
+		success: function(response) {
+			// Handle successful response from the server
+			if(response.code && response.code == 200){
+				const alert = $.alert({
+        			title: 'Signup Success',
+        			content: 'Please login to continue.',
+                });
+				alert.open(); 
+				window.setTimeout(function(){
+					alert.close();
+					window.location.href = './login';
+				}, 3000);
+			}else{
+				if(response.data && response.data.fname &&  response.data.fname != null){
+					$('#inputfname').addClass('is-invalid');
+					$('#inputfnameFeedback').addClass('invalid-feedback').text(response.data.fname);
+				}
+				if(response.data && response.data.lname &&  response.data.lname != null){
+					$('#inputlname').addClass('is-invalid');
+					$('#inputlnameFeedback').addClass('invalid-feedback').text(response.data.lname);
+				}
+				if(response.data && response.data.email &&  response.data.email != null){
+					$('#inputemail').addClass('is-invalid');
+					$('#inputemailFeedback').addClass('invalid-feedback').text(response.data.email);
+				}
+				if(response.data && response.data.password &&  response.data.password != null){
+					$('#inputpass').addClass('is-invalid');
+					$('#inputpassFeedback').addClass('invalid-feedback').text(response.data.password);
+				}
+				if(response.data && response.data.confirm &&  response.data.confirm != null){
+					$('#inputpass').addClass('is-invalid');
+					$('#inputpassFeedback').addClass('invalid-feedback').text(response.data.confirm);
+				}
+				if(response.data && response.data.form &&  response.data.form != null){
+					$('#inputform').addClass('is-invalid'); 
+					$('#frmSignupFeedback').addClass('invalid-feedback').text(response.data.form);
+				}
+			}
+		},
+		error: function(jqXHR, textStatus, errorThrown) {
+			// Handle errors
+			$('#inputform').addClass('is-invalid'); 
+			$('#frmSignupFeedback').addClass('invalid-feedback').text('unexpected error has occured');
+		}
+   });																		
+});
+</script>

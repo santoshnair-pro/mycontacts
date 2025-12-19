@@ -1,0 +1,35 @@
+<?php
+
+require 'vendor/autoload.php';
+use App\config\DatabaseConnection;
+
+try {
+    // load environment variables from file
+    $dotenv = Dotenv\Dotenv::createImmutable(str_replace('/database', '', __DIR__));
+    $dotenv->load();
+    // make database connection
+    $db = new DatabaseConnection();
+    // loop through migrations directory
+    $directory = __DIR__ . '/migrations';
+    // use scandir to read files in ascending order
+    $files = scandir($directory);
+    $files = array_diff($files, ['.', '..']);
+    // loop and call up method to create the table structure
+    foreach ($files as $file) {
+        if (pathinfo($file, PATHINFO_EXTENSION) === 'php') {
+            require_once (string) $directory . '/' . $file;
+            $className = '';
+            $arr       = explode('_', str_replace('.php', '', basename($file)));
+            for ($i = 1; $i < count($arr); $i++) {
+                $className .= ucfirst($arr[$i]);
+            }
+            if (class_exists(class: $className)) {
+                $migration = new $className();
+                $migration->up($db);
+            }
+        }
+    }
+} catch (Exception $e) {
+    echo 'Unable to run DB migrations' . PHP_EOL;
+    echo '' . $e->getMessage() . '';
+}

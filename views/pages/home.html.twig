@@ -1,0 +1,139 @@
+{% extends "layout/index.html.twig" %}
+
+{% block content %}
+ <div class="row justify-content-between">
+    <div class="col-md-4">
+      <div class="search-container">
+        <input type="text" id="searchInput" class="form-control search-input" placeholder="Search...">
+        <i class="bi bi-search search-icon"></i>
+      </div>
+    </div>
+    <div class="col-md-4">
+        <div class="d-flex justify-content-end"><a class="btn btn-primary btn-lg" href="./contact" role="button">Add New Contact</a></div>
+    </div>
+  </div>
+	<table id="tblContacts" class="display">
+		<thead>
+			<tr>
+				<th></th>
+			</tr>
+		</thead>
+		<tfoot>
+			<tr>
+				<th></th>
+			</tr>
+		</tfoot>
+	</table>
+	<script type="text/javascript" language="javascript">
+	$(document).ready(function() {
+	    const tblContacts = $('#tblContacts').DataTable({
+            "responsive": true,
+            "info": false,
+            "ordering": false,
+            "lengthChange": false,
+	        "processing": true,
+	        "serverSide": true,
+            "layout": {
+                // topStart: 'buttons'
+            },
+            "buttons": false,
+            "searching": false,
+	        "ajax": {
+	            "url": "./contacts",
+	            "type": "POST",
+                "data": function(d){
+                    d.search.value = $('#searchInput').val();
+                },
+	            "dataFilter": function(response){
+	                const json = jQuery.parseJSON(response);
+	                json.recordsTotal = json.data.recordsTotal;
+	                json.recordsFiltered = json.data.recordsFiltered;
+	                json.data = json.data.list;    
+	                return JSON.stringify(json);
+	            }
+	        },
+	        "columns": [
+	            { 
+                    "data": "id",
+                    "render": function(data, type, row, meta){
+						const middlename = (row.middlename!=null && row.middlename.length)?row.middlename:'';
+  	                    const name = row.firstname + ' ' + middlename + ' ' + row.lastname;
+                        const email = row.email;
+                        const pmobile = row.primary_mobile;
+                        const amobile = row.alternate_mobile ?? '';
+						const avatar_src = (row.avatar != null && row.avatar.length)? 'data:image/png;base64, ' + row.avatar:'public/img/default_avatar.jpeg';
+                        return '<div class="card shadow p-3 bg-body-tertiary rounded">'
+                            + '<div class="btn-toolbar position-absolute top-0 end-0 mt-1" role="toolbar" aria-label="Toolbar with button groups">'
+                            + '<div class="btn-group me-2" role="group" aria-label="First group">' 
+                            + '<button type="button" name="editContact" data="'+meta.row+'" class="btn btn-outline-secondary"><i class="bi bi-pencil-fill text-primary"></i></button>'
+                            + '<button type="button" name="deleteContact" data="'+meta.row+'" class="btn btn-outline-secondary"><i class="bi bi-trash-fill text-danger"></i></button>'
+                            + '</div>'
+                            +'</div>'
+		                    + '<div class="card-body">'
+			                + '<div class="row">'
+				            + '<div class="col-md-2 text-center"><img class="img-profile rounded-circle align-middle mx-auto" src="'+avatar_src+'" height="120" width="120"></div>'
+				            + '<div class="col-md-10 p-2 mt-2">'
+					        + '<p class="fw-medium fs-5 text-capitalize text-light-emphasis text-decoration-underline">'+name+'</p>'
+					        + '<p class="text-secondary-emphasis"><i class="bi bi-envelope"></i> <a href="mailto:'+email+'">'+email+'</a> <i class="bi bi-phone"></i> <a href="tel:'+pmobile+'">'+pmobile+'</a></p>'
+                            + '</div>'
+                            + '</div>'
+                            + '</div>'
+                            + '</div>';
+
+	                } 
+	            },
+	        ]
+	    });
+		
+        $('#searchInput').on('input', function(){
+            tblContacts.draw();
+        });
+
+		$(document).on("click", ".btn-group .btn", function() {
+			const dataRow = tblContacts.row($(this).attr('data')).data();
+			const action = $(this).attr('name');
+			if(action == 'editContact'){
+				window.location.href = "contact?id="+dataRow.id;
+			}else{
+			$.confirm({
+    			title: 'Delete Contact',
+    			content: 'Are you sure you want to delete the contact ' + dataRow.firstname+ ' ' + dataRow.lastname + '('+dataRow.primary_mobile+') ?' ,
+    			buttons: {
+        			Yes: function () {
+            			// make ajax call to delete the contact
+						$.ajax({
+       						type: 'DELETE',
+        					url: './contact?id='+parseInt(dataRow.id), // Replace with your server-side script
+             				dataType: 'json', // Expect JSON response from the server
+        					success: function(response) {
+            					// Handle successful response from the server
+								if(response.code && response.code == 200){
+									tblContacts.draw();
+								}else{
+									if(response.data && response.data.id){
+										$.alert(response.data.id);
+										return;
+									}else if(response.data && response.data.message){
+										$.alert(response.message);
+									}else{
+										$.alert('An error occurred while processing your request ');
+									}
+									
+								}
+							},
+							error: function(xhr, status, error) {
+								// Handle error response from the server
+								$.alert('An error occurred while processing your request ');
+							}
+						});					
+        			},
+        			No: function () {
+            			
+        			},
+        		}
+			});
+			}
+ 		});
+	});
+	</script>
+{% endblock %}

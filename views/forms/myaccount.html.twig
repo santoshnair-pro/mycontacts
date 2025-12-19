@@ -1,0 +1,120 @@
+<div class="row justify-content-center align-items-center page-content">
+	<div class="col-md-6 page-left">
+		
+	</div>
+	<div class="col-md-6 d-flex align-items-center form-container">
+		<div class="card p-4 shadow-2-strong form-card">
+			<div class="card-body">
+				<form id="frmAccount" name="frmAccount" method="post" action="/myaccount">
+					<div class="divider d-flex align-items-center my-4">
+						<h3>My Account</h3>
+						<div>
+							<input type="hidden" name="inputform" id="inputform" value=""/>
+							<div id="frmAccountFeedback" class=""></div>
+						</div>	
+					</div>
+					<div class="form-outline mb-4">
+						<label class="form-label" for="inputfname">First Name</label>
+						<input type="text" name="fname" id="inputfname" class="form-control form-control-lg" placeholder="first name" maxlength="20" value="{{ row.fname }}"/>
+						<div id="inputfnameFeedback" class=""></div>
+					</div>
+					<div class="form-outline mb-4">
+						<label class="form-label" for="inputlname">Last Name</label>
+						<input type="text" name="lname" id="inputlname" class="form-control form-control-lg" placeholder="last name" maxlength="25" value="{{ row.lname }}"/>
+						<div id="inputlnameFeedback" class=""></div>
+					</div>
+					<div class="form-outline mb-4">
+						<label class="form-label" for="inputemail">Email</label>
+						<input type="email" name="email" id="inputemail" class="form-control form-control-lg" placeholder="email" maxlength="100" value="{{ row.email }}"/>
+						<div id="inputemailFeedback" class=""></div>
+					</div>
+					<div class="text-center text-lg-start mt-4 pt-2">
+						<button type="submit" class="btn btn-primary">Submit</button>
+						<button type="reset" class="btn btn-secondary">Reset</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+ <script type="text/javascript" language="javascript">
+$("#frmAccount").on("submit", function(event){
+   // Prevent the default form submission (page refresh)
+   event.preventDefault();
+   $('#inputfname').removeClass('is-invalid');
+   $('#inputfnameFeedback').removeClass('invalid-feedback').text("");
+   $('#inputlname').removeClass('is-invalid');
+   $('#inputlnameFeedback').removeClass('invalid-feedback').text("");
+   $('#inputemail').removeClass('is-invalid');
+   $('#inputemailFeedback').removeClass('invalid-feedback').text("");
+   $('#inputform').removeClass('is-invalid'); 
+   $('#frmAccountFeedback').removeClass('invalid-feedback').text("");
+
+   const fname  = $('#inputfname').val().trim();
+   const lname  = $('#inputlname').val().trim();
+   const email  = $('#inputemail').val().trim();
+	// validate form data
+   if(fname.length < 2 || fname.length > 20){
+		$('#inputfname').addClass('is-invalid');
+		$('#inputfnameFeedback').addClass('invalid-feedback').text('First name must be at least 2 characters long and maximum 20 characters long');
+		return false;
+   }
+   if(lname.length < 2 || lname.length > 25){
+		$('#inputlname').addClass('is-invalid');
+		$('#inputlnameFeedback').addClass('invalid-feedback').text('Last name must be at least 2 characters long and maximum 25 characters long');
+		return false;
+   }
+   if(!validator.isEmail(email)){
+		$('#inputemail').addClass('is-invalid');
+		$('#inputemailFeedback').addClass('invalid-feedback').text('Please provide a valid email');
+		return false;
+   }
+   const formData = {
+	fname: fname,
+	lname: lname,		
+	email: email
+   }
+   $.ajax({
+		type: 'POST',
+		url: './myaccount', // Replace with your server-side script
+		data: formData,
+		dataType: 'json', // Expect JSON response from the server
+		success: function(response) {
+			// Handle successful response from the server
+			if(response.code && response.code == 200){
+				const alert = $.alert({
+        			title: 'Profile updated',
+        			content: 'Redirecting to home page...',
+                });
+				alert.open(); 
+				window.setTimeout(function(){
+					alert.close();
+					window.location.href = "./home";
+				}, 3000);
+			}else{
+				if(response.data && response.data.fname &&  response.data.fname != null){
+					$('#inputfname').addClass('is-invalid');
+					$('#inputfnameFeedback').addClass('invalid-feedback').text(response.data.fname);
+				}
+				if(response.data && response.data.lname &&  response.data.lname != null){
+					$('#inputlname').addClass('is-invalid');
+					$('#inputlnameFeedback').addClass('invalid-feedback').text(response.data.lname);
+				}
+				if(response.data && response.data.email &&  response.data.email != null){
+					$('#inputemail').addClass('is-invalid');
+					$('#inputemailFeedback').addClass('invalid-feedback').text(response.data.email);
+				}
+				if(response.data && response.data.form &&  response.data.form != null){
+					$('#inputform').addClass('is-invalid'); 
+					$('#frmAccountFeedback').addClass('invalid-feedback').text(response.data.form);
+				}
+			}
+		},
+		error: function(jqXHR, textStatus, errorThrown) {
+			// Handle errors
+			$('#inputform').addClass('is-invalid'); 
+			$('#frmAccountFeedback').addClass('invalid-feedback').text('unexpected error has occured');
+		}
+   });																		
+});
+</script>

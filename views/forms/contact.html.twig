@@ -1,0 +1,307 @@
+<div class="row justify-content-center align-items-center page-content">
+	<div class="col-md-6 page-left"></div>
+	<div class="col-md-6 d-flex align-items-center form-container">
+		<div class="card p-4 shadow-2-strong form-card">
+			<div class="card-body">
+				<form id="frmContact" name="frmContact" method="post" enctype="multipart/form-data" action="/contact">
+					<div class="divider d-flex align-items-center my-4">
+						<h3>Contact</h3>
+						<div>
+							<input type="hidden" name="inputform" id="inputform" value=""/>
+							<div id="frmContactFeedback" class=""></div>
+						</div>
+					</div>
+					<div class="form-outline mb-4">
+						<label class="form-label" for="input">Profile Avatar</label>
+						{% if row is defined and row.id is not empty %}
+							<input type="hidden" name="contactId" id="contactId" value="{{ row.id }}"/>
+						{% endif %}
+						{% if row is defined and row.avatar is not empty %}
+						<div id="contactAvatar" class="mb-3">
+							<img class="img-profile rounded-circle align-middle mx-auto" src="{{ 'data:image/png;base64, ' ~ row.avatar }}" height="120" width="120"><br>
+						</div>	
+						{% endif %}
+						<div id="fileAvatar" class="input-group">
+							<input type="file" class="form-control form-control-lg" placeholder="Upload jpeg image" id="inputavatar" name="inputavatar">
+							<div id="inputavatarFeedback" class=""></div>
+						</div>
+						<div id="imgAvatar">
+							
+						</div>
+					</div>
+					<div class="form-outline mb-4">
+						<label class="form-label" for="inputfname">First Name
+							<span class="text-danger fw-bold">*</span>
+						</label>
+						<input type="text" name="fname" id="inputfname" class="form-control form-control-lg" placeholder="first name" maxlength="20" value="{{ row.firstname ?? row.firstname }}"/>
+						<div id="inputfnameFeedback" class=""></div>
+					</div>
+					<div class="form-outline mb-4">
+						<label class="form-label" for="inputfname">Middle Name</label>
+						<input type="text" name="mname" id="inputmname" class="form-control form-control-lg" placeholder="middle name" maxlength="25" value="{{ row.middlename ?? row.middlename }}"/>
+						<div id="inputmnameFeedback" class=""></div>
+					</div>
+					<div class="form-outline mb-4">
+						<label class="form-label" for="inputlname">Last Name
+							<span class="text-danger fw-bold">*</span>
+						</label>
+						<input type="text" name="lname" id="inputlname" class="form-control form-control-lg" placeholder="last name" maxlength="25" value="{{ row.lastname ?? row.lastname }}"/>
+						<div id="inputlnameFeedback" class=""></div>
+					</div>
+					<div class="form-outline mb-4">
+						<label class="form-label" for="inputemail">Email
+							<span class="text-danger fw-bold">*</span>
+						</label>
+						<input type="email" name="email" id="inputemail" class="form-control form-control-lg" placeholder="email" maxlength="100" value="{{ row.email ?? row.email }}"/>
+						<div id="inputemailFeedback" class=""></div>
+					</div>
+					<div class="form-outline mb-4">
+						<label class="form-label" for="inputpmobile">Primary Mobile
+							<span class="text-danger fw-bold">*</span>
+						</label>
+						<input type="tel" name="pmobile" id="inputpmobile" class="form-control form-control-lg" placeholder="primary mobile" maxlength="12" value="{{ row.primary_mobile ?? row.primary_mobile }}"/>
+						<div id="inputpmobileFeedback" class=""></div>
+					</div>
+					<div class="form-outline mb-4">
+						<label class="form-label" for="inputamobile">Alternate Mobile</label>
+						<input type="tel" name="amobile" id="inputamobile" class="form-control form-control-lg" placeholder="alternate mobile" maxlength="12" value="{{ row.alternate_mobile ?? row.alternate_mobile }}"/>
+						<div id="inputamobileFeedback" class=""></div>
+					</div>
+					<div class="text-center text-lg-start mt-4 pt-2">
+						<button type="submit" class="btn btn-primary">Submit</button>
+						<button type="reset" class="btn btn-secondary">Reset</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+ <script type="text/javascript" langugage="javascript">
+ $('#imgAvatar').on('click', '.btn-close', function() {
+    const imgSrc = $('#imgAvatar img').attr('src');
+	// delete image
+	$.ajax({
+		type: 'POST',
+		url: './deleteavatar', // Replace with your server-side script
+		data: {'src': imgSrc},
+		dataType: 'json', // Expect JSON response from the server
+		success: function(response) {
+			$('#inputavatar').removeClass('is-invalid');
+	  		$('#inputavatarFeedback').removeClass('invalid-feedback').text('');
+			if(response.code && response.code == 200){
+				$('#imgAvatar').html('');
+				$('#imgAvatar').hide();
+				$('#fileAvatar').show();
+				if($('#contactAvatar').length){
+					$('#contactAvatar').show();
+				}
+			}else{
+				$('#inputavatar').addClass('is-invalid'); 
+				$('#inputavatarFeedback').addClass('invalid-feedback').text(response.data.form);
+			}
+		},
+		error: function(jqXHR, textStatus, errorThrown) {
+			$('#inputavatar').addClass('is-invalid'); 
+			$('#inputavatarFeedback').addClass('invalid-feedback').text('Unable to delete profile picture');
+		}
+	});
+});
+$(function(){
+  $('#inputavatar').dmUploader({ //
+    url: './upload',
+    maxFileSize: 3000000, // 3 Megs max
+    multiple: false,
+    allowedTypes: 'image/*',
+    extFilter: ['jpg','jpeg'],
+    onInit: function(){
+    },
+    onComplete: function(){
+    },
+    onNewFile: function(id, file){
+    },
+    onBeforeUpload: function(id){
+    },
+    onUploadProgress: function(id, percent){
+    },
+    onUploadSuccess: function(id, response){
+      $('#inputavatar').removeClass('is-invalid');
+	  $('#inputavatarFeedback').removeClass('invalid-feedback').text('');
+      if(response.code && response.code == 200){
+        	const avatar_src = response.data.file;
+			if($('#contactAvatar').length){
+				$('#contactAvatar').hide();
+			}
+        	$('#fileAvatar').hide();
+        	$('#imgAvatar').html('<img class="img-profile rounded-circle align-middle mx-auto" src="'+avatar_src+'" height="120" width="120"><button type="button" class="btn-close top-0 end-50" aria-label="Delete"></button>');
+        	$('#imgAvatar').show();
+      }else{
+        if(response.data && response.data.form &&  response.data.form != null){
+			$('#inputavatar').addClass('is-invalid'); 
+			$('#inputavatarFeedback').addClass('invalid-feedback').text(response.data.form);
+		}
+      }
+    },
+    onUploadError: function(id, xhr, status, message){
+      // Happens when an upload error happens
+    	$('#inputavatar').addClass('is-invalid');
+    	$('#inputavatarFeedback').addClass('invalid-feedback').text('Unable to upload file');
+    },
+    onFallbackMode: function(){
+      // When the browser doesn't support this plugin :(
+	    $('#inputavatar').addClass('is-invalid');
+    	$('#inputavatarFeedback').addClass('invalid-feedback').text('Your browser does not support file upload');
+    },
+    onFileSizeError: function(file){
+		$('#inputavatar').addClass('is-invalid');
+    	$('#inputavatarFeedback').addClass('invalid-feedback').text('File size should not exceed 3 MB');
+    },
+    onFileTypeError: function(file){
+		$('#inputavatar').addClass('is-invalid');
+    	$('#inputavatarFeedback').addClass('invalid-feedback').text('Upload only image file');
+    },
+    onFileExtError: function(file){
+	    $('#inputavatar').addClass('is-invalid');
+    	$('#inputavatarFeedback').addClass('invalid-feedback').text('Upload only jpeg image file');
+    }
+  });
+});
+$("#frmContact").on("submit", function(event){
+	// Prevent the default form submission (page refresh)
+   event.preventDefault();
+   $('#inputfname').removeClass('is-invalid');
+   $('#inputfnameFeedback').removeClass('invalid-feedback').text("");
+   $('#inputmname').removeClass('is-invalid');
+   $('#inputmnameFeedback').removeClass('invalid-feedback').text("");
+   $('#inputlname').removeClass('is-invalid');
+   $('#inputlnameFeedback').removeClass('invalid-feedback').text("");
+   $('#inputemail').removeClass('is-invalid');
+   $('#inputemailFeedback').removeClass('invalid-feedback').text("");
+   $('#inputpmobile').removeClass('is-invalid');
+   $('#inputpmobileFeedback').removeClass('invalid-feedback').text("");
+   $('#inputamobile').removeClass('is-invalid');
+   $('#inputamobileFeedback').removeClass('invalid-feedback').text("");
+   $('#inputform').removeClass('is-invalid'); 
+   $('#frmContactFeedback').removeClass('invalid-feedback').text("");
+
+   const fname  = $('#inputfname').val().trim();
+   const mname  = $('#inputmname').val().trim();
+   const lname  = $('#inputlname').val().trim();
+   const email  = $('#inputemail').val().trim();
+   const pmobile = $('#inputpmobile').val().trim();
+   const amobile = $('#inputamobile').val().trim();
+
+   // validate form data
+   if(fname.length < 2 || fname.length > 20){
+		$('#inputfname').addClass('is-invalid');
+		$('#inputfnameFeedback').addClass('invalid-feedback').text('First name must be at least 2 characters long and maximum 20 characters long');
+		return false;
+   }
+   if(!validator.isEmpty(mname) && (mname.length < 2 || mname.length > 25)){
+		$('#inputmname').addClass('is-invalid');
+		$('#inputmnameFeedback').addClass('invalid-feedback').text('Middle name must be at least 2 characters long and maximum 25 characters long');
+		return false;
+   }
+   if(lname.length < 2 || lname.length > 25){
+		$('#inputlname').addClass('is-invalid');
+		$('#inputlnameFeedback').addClass('invalid-feedback').text('Last name must be at least 2 characters long and maximum 25 characters long');
+		return false;
+   }
+   if(!validator.isEmail(email)){
+		$('#inputemail').addClass('is-invalid');
+		$('#inputemailFeedback').addClass('invalid-feedback').text('Please provide a valid email');
+		return false;
+   }
+   if(!validator.isMobilePhone(pmobile, 'en-IN')){
+		$('#inputpmobile').addClass('is-invalid');
+		$('#inputpmobileFeedback').addClass('invalid-feedback').text('Please provide a valid mobile number');
+		return false;
+   }
+   if(!validator.isEmpty(amobile) && !validator.isMobilePhone(amobile, 'en-IN')){
+		$('#inputamobile').addClass('is-invalid');
+		$('#inputamobileFeedback').addClass('invalid-feedback').text('Please provide a valid mobile number');
+		return false;
+   }
+   let contactId = null;
+   if($('#contactId').length){
+	   contactId = $('#contactId').val();
+   }
+   updateContact = false;
+   if(contactId != null && !isNaN(contactId) && contactId > 0){
+	    updateContact = true;
+   }
+   const imgSrc = ($('#imgAvatar img').length)?$('#imgAvatar img').attr('src'):'';
+   const formData = {
+	avatar: imgSrc,
+	fname: fname,
+	mname: mname,
+	lname: lname,		
+	email: email,
+	pmobile: pmobile,
+	amobile: amobile
+   }
+   if(updateContact){
+	   formData['id'] = contactId;
+   }
+   let methodType = (updateContact)?'PUT':'POST';
+    $.ajax({
+		type: methodType,
+		url: './contact', // Replace with your server-side script
+		data: formData,
+		dataType: 'json', // Expect JSON response from the server
+		success: function(response) {
+			// Handle successful response from the server
+			if(response.code && response.code == 200){
+				$('#imgAvatar').html('');
+				$('#imgAvatar').hide();
+				$('#fileAvatar').show();
+				$("#frmContact").trigger("reset");
+				const alert = $.alert({
+        			title: 'Contact',
+        			content: response.data.message,
+                });
+				alert.open(); 
+				window.setTimeout(function(){
+					alert.close();
+					if(updateContact){
+						window.location.href = './home';
+					}
+				}, 3000);
+			}else{
+				if(response.data && response.data.fname &&  response.data.fname != null){
+					$('#inputfname').addClass('is-invalid');
+					$('#inputfnameFeedback').addClass('invalid-feedback').text(response.data.fname);
+				}
+				if(response.data && response.data.mname &&  response.data.mname != null){
+					$('#inputmname').addClass('is-invalid');
+					$('#inputmnameFeedback').addClass('invalid-feedback').text(response.data.lname);
+				}
+				if(response.data && response.data.lname &&  response.data.lname != null){
+					$('#inputlname').addClass('is-invalid');
+					$('#inputlnameFeedback').addClass('invalid-feedback').text(response.data.lname);
+				}
+				if(response.data && response.data.email &&  response.data.email != null){
+					$('#inputemail').addClass('is-invalid');
+					$('#inputemailFeedback').addClass('invalid-feedback').text(response.data.email);
+				}
+				if(response.data && response.data.pmobile &&  response.data.pmobile != null){
+					$('#inputpmobile').addClass('is-invalid');
+					$('#inputpmobileFeedback').addClass('invalid-feedback').text(response.data.pmobile);
+				}
+				if(response.data && response.data.amobile &&  response.data.amobile != null){
+					$('#inputamobile').addClass('is-invalid');
+					$('#inputamobileFeedback').addClass('invalid-feedback').text(response.data.amobile);
+				}
+				if(response.data && response.data.form &&  response.data.form != null){
+					$('#inputform').addClass('is-invalid'); 
+					$('#frmAccountFeedback').addClass('invalid-feedback').text(response.data.form);
+				}
+			}
+		},
+		error: function(jqXHR, textStatus, errorThrown) {
+			// Handle errors
+			$('#inputform').addClass('is-invalid'); 
+			$('#frmContactFeedback').addClass('invalid-feedback').text('unexpected error has occured');
+		}
+   });
+});
+</script>
