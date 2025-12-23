@@ -64,39 +64,39 @@ AccessFileName .htaccess
 
 ## Repository Strucutre
 
-/mycontacts-corephp
-|___/cache
-|___/database
-|   |__ /migrations
-|   |__ /seeders
-|___/logs
-|___/public
-|   |__ /css
-|   |__ /img
-|   |__ /js
-|___/src
-│   |__ /config
-|	|__ /controllers
-|	|__ /models
-|	|__ /util
-|___/tests
-|   |__ /integrations
-|   |__ /unit
-|___/uploads
-|___/vendor
-|___/views
-|   |__ /forms
-|   |__ /layout
-|   |__ /pages
-|___.env.dev
-|___.gitignore
-|___.htaccess
-|___.php-cs-fixer
-|___phpcs.xml
-|___phpunit.xml
-|___composer.json
-|___index.php								
-|___README.md
+/mycontacts-corephp  
+|___/cache  
+|___/database  
+|   |__ /migrations  
+|   |__ /seeders  
+|___/logs  
+|___/public  
+|   |__ /css  
+|   |__ /img  
+|   |__ /js  
+|___/src  
+│   |__ /config  
+|	|__ /controllers  
+|	|__ /models  
+|	|__ /util  
+|___/tests  
+|   |__ /integrations  
+|   |__ /unit  
+|___/uploads  
+|___/vendor  
+|___/views  
+|   |__ /forms  
+|   |__ /layout  
+|   |__ /pages  
+|___.env.dev  
+|___.gitignore  
+|___.htaccess  
+|___.php-cs-fixer  
+|___phpcs.xml  
+|___phpunit.xml  
+|___composer.json  
+|___index.php  								
+|___README.md  
 
 ## Features
 The code is inspired by "PHP - The Right Way". I have tried to implement all good coding practises and standards with this core php project:
